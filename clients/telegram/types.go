@@ -5,7 +5,21 @@ type UpdateResponse struct {
 	Result []Update `json:"result"`
 }
 
+type From struct {
+	Username string `json:"username"`
+}
+
+type Chat struct {
+	ID int `json:"id"`
+}
+
+type IncomingMessage struct {
+	Text string `json:"text"`
+	From From   `json:"from"`
+	Chat Chat   `json:"chat"`
+}
+
 type Update struct {
-	ID      int    `json:"update_id"`
-	Message string `json:"message"`
+	ID      int              `json:"update_id"`
+	Message *IncomingMessage `json:"message"`
 }

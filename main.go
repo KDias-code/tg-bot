@@ -2,20 +2,36 @@ package main
 
 import (
 	"flag"
-	"github.com/KDias-code/clients/telegram"
+	tgClient "github.com/KDias-code/clients/telegram"
+	event_consumer "github.com/KDias-code/consumer/event-consumer"
+	"github.com/KDias-code/events/telegram"
+	"github.com/KDias-code/storage/files"
 	"log"
 )
 
 const (
-	tgBotHost = "api.telegram.org"
+	tgBotHost   = "api.telegram.org"
+	storagePath = "storage"
+	batchSize   = 100
 )
 
 func main() {
-	tgClient := telegram.New(mustToken())
+	eventsProcessor := telegram.New(
+		tgClient.New(tgBotHost, mustToken()),
+		files.New(storagePath),
+	)
+
+	log.Print("service started...")
+
+	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
+
+	if err := consumer.Start(); err != nil {
+		log.Fatal("service stopped!", err)
+	}
 }
 
 func mustToken() string {
-	token := flag.String("token-bot-token", "", "token which need to access tg bot")
+	token := flag.String("tg-bot-token", "", "token which need to access tg bot")
 
 	if *token != "" {
 		log.Fatal("token is no specified")
